@@ -390,6 +390,7 @@ function showVenueDetails(venueName) {
             <p><strong>Neighborhood:</strong> ${venue.neighborhood}</p>
             <p><strong>Phone:</strong> <a href="tel:${venue.phone}">${venue.phone}</a></p>
             ${venue.website ? `<p><strong>Website:</strong> <a href="${venue.website}" target="_blank">${venue.website}</a></p>` : ''}
+            <div id="venue-map" class="venue-map"></div>
         </div>
 
         <div class="modal-section">
@@ -434,6 +435,100 @@ function showVenueDetails(venueName) {
 
     modal.style.display = 'flex';
     document.body.style.overflow = 'hidden';
+
+    // Initialize Google Map after modal is shown
+    setTimeout(() => initializeVenueMap(venue), 100);
+}
+
+function initializeVenueMap(venue) {
+    // Check if Google Maps is loaded
+    if (typeof google === 'undefined' || !google.maps) {
+        console.warn('Google Maps not loaded, showing fallback link');
+        const mapContainer = document.getElementById('venue-map');
+        if (mapContainer) {
+            const encodedAddress = encodeURIComponent(venue.address);
+            mapContainer.innerHTML = `
+                <div class="map-fallback">
+                    <p>📍 <a href="https://www.google.com/maps/search/?api=1&query=${encodedAddress}" target="_blank" class="map-link">
+                        View on Google Maps
+                    </a></p>
+                </div>
+            `;
+        }
+        return;
+    }
+
+    const mapContainer = document.getElementById('venue-map');
+    if (!mapContainer) return;
+
+    // Create geocoder to convert address to coordinates
+    const geocoder = new google.maps.Geocoder();
+
+    geocoder.geocode({ address: venue.address }, (results, status) => {
+        if (status === 'OK' && results[0]) {
+            const location = results[0].geometry.location;
+
+            // Create map
+            const map = new google.maps.Map(mapContainer, {
+                center: location,
+                zoom: 15,
+                mapTypeControl: false,
+                streetViewControl: false,
+                fullscreenControl: true,
+                styles: [
+                    {
+                        featureType: 'poi.business',
+                        elementType: 'all',
+                        stylers: [{ visibility: 'simplified' }]
+                    }
+                ]
+            });
+
+            // Create marker
+            const marker = new google.maps.Marker({
+                position: location,
+                map: map,
+                title: venue.name,
+                icon: {
+                    url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="#2563eb">
+                            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                        </svg>
+                    `),
+                    scaledSize: new google.maps.Size(32, 32),
+                    anchor: new google.maps.Point(16, 32)
+                }
+            });
+
+            // Create info window
+            const infoWindow = new google.maps.InfoWindow({
+                content: `
+                    <div class="map-info-window">
+                        <h4>${venue.name}</h4>
+                        <p>${venue.address}</p>
+                        <p><strong>Phone:</strong> ${venue.phone}</p>
+                        <p><a href="https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(venue.address)}" target="_blank">Get Directions</a></p>
+                    </div>
+                `
+            });
+
+            // Show info window on marker click
+            marker.addListener('click', () => {
+                infoWindow.open(map, marker);
+            });
+
+        } else {
+            // Fallback if geocoding fails
+            const encodedAddress = encodeURIComponent(venue.address);
+            mapContainer.innerHTML = `
+                <div class="map-fallback">
+                    <p>📍 <a href="https://www.google.com/maps/search/?api=1&query=${encodedAddress}" target="_blank" class="map-link">
+                        View on Google Maps
+                    </a></p>
+                </div>
+            `;
+        }
+    });
 }
 
 function closeVenueDetails() {

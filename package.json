@@ -4,9 +4,11 @@
   "description": "Minneapolis Metro Happy Hour Finder",
   "main": "index.js",
   "scripts": {
-    "dev": "python -m http.server 3000 -d src",
+    "dev": "python -m http.server 3000",
     "fetch-data": "node scripts/fetch-data.js",
-    "test-fetch": "GOOGLE_SHEETS_ID=your_sheets_id_here npm run fetch-data"
+    "build-maps": "node scripts/build-with-maps.js",
+    "test-fetch": "GOOGLE_SHEETS_ID=your_sheets_id_here npm run fetch-data",
+    "test-maps": "GOOGLE_MAPS_API_KEY=your_api_key_here npm run build-maps"
   },
   "keywords": ["happy-hour", "minneapolis", "bars", "restaurants"],
   "author": "",

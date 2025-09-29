@@ -28,6 +28,7 @@ Visit the live site: `https://your-username.github.io/happy-hour`
 3. **Configure GitHub Secrets:**
    - Go to your repo Settings → Secrets and variables → Actions
    - Add secret: `GOOGLE_SHEETS_ID` with your **Spreadsheet ID**
+   - Add secret: `GOOGLE_MAPS_API_KEY` with your Google Maps API key (optional - enables maps in venue details)
 
 4. **Enable GitHub Pages:**
    - Go to Settings → Pages
@@ -73,6 +74,28 @@ Your Google Sheets should have these columns:
 1. Add venues to the Google Sheet
 2. Submit issues for bugs or feature requests
 3. Create pull requests for code improvements
+
+## 🗺️ Google Maps Setup (Optional)
+
+To enable interactive maps in venue details:
+
+1. **Get Google Maps API Key:**
+   - Go to [Google Cloud Console](https://console.cloud.google.com)
+   - Create a new project or select existing one
+   - Enable "Maps JavaScript API" and "Geocoding API"
+   - Create API key
+
+2. **Secure Your API Key:**
+   - Add HTTP referrer restrictions: `your-username.github.io/*`
+   - Limit to required APIs: Maps JavaScript API, Geocoding API
+
+3. **Add to GitHub Secrets:**
+   - Repository Settings → Secrets and variables → Actions
+   - New secret: `GOOGLE_MAPS_API_KEY` = your API key
+
+4. **Without API Key:**
+   - Maps show "View on Google Maps" links instead
+   - All functionality still works
 
 ## 💡 Future Ideas
 
