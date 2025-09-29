@@ -196,6 +196,13 @@ class HappyHourApp {
         const timeFilter = this.elements.timeFilter.value;
         const searchTerm = this.elements.searchInput.value.toLowerCase();
 
+        console.log('=== APPLY FILTERS ===');
+        console.log('Day filter:', dayFilter);
+        console.log('Neighborhood filter:', neighborhoodFilter);
+        console.log('Time filter:', timeFilter);
+        console.log('Search term:', searchTerm);
+        console.log('Total venues before filtering:', this.venues.length);
+
         this.filteredVenues = this.venues.filter(venue => {
             // Day filter
             if (dayFilter && !venue.happyHours[dayFilter]) {
@@ -230,6 +237,9 @@ class HappyHourApp {
 
             return true;
         });
+
+        console.log('Venues after filtering:', this.filteredVenues.length);
+        console.log('Filtered venue names:', this.filteredVenues.map(v => v.name));
 
         this.renderVenues();
     }
