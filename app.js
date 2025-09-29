@@ -256,13 +256,14 @@ class HappyHourApp {
     }
 
     timeToMinutes(timeString) {
-        // Convert "HH:MM AM/PM" to minutes since midnight
-        const timeMatch = timeString.match(/(\d{1,2}):(\d{2})\s*(AM|PM)?/);
+        // Convert various time formats to minutes since midnight
+        // Handles: "11:00 AM", "11am", "11:00", "11"
+        const timeMatch = timeString.match(/(\d{1,2})(?::(\d{2}))?\s*(AM|PM|am|pm)?/i);
         if (!timeMatch) return null;
 
         let hours = parseInt(timeMatch[1]);
-        const minutes = parseInt(timeMatch[2]);
-        const period = timeMatch[3];
+        const minutes = parseInt(timeMatch[2] || '0');
+        const period = timeMatch[3]?.toUpperCase();
 
         if (period === 'PM' && hours !== 12) {
             hours += 12;
@@ -276,8 +277,27 @@ class HappyHourApp {
     }
 
     parseTimeRange(timeString) {
-        // Parse "3:00 PM - 6:00 PM" format
-        const rangeMatch = timeString.match(/(\d{1,2}:\d{2}\s*(?:AM|PM))\s*-\s*(\d{1,2}:\d{2}\s*(?:AM|PM))/);
+        // Handle special cases first
+        if (!timeString || timeString.toLowerCase().includes('n/a') || timeString.toLowerCase() === 'closed') {
+            return null;
+        }
+
+        if (timeString.toLowerCase().includes('all day')) {
+            return { start: 0, end: 24 * 60 - 1 }; // All day (0:00 to 23:59)
+        }
+
+        if (timeString.toLowerCase().includes('close')) {
+            // Handle "6pm-Close" - assume close is 2 AM
+            const startMatch = timeString.match(/(\d{1,2})(?::(\d{2}))?\s*(am|pm)/i);
+            if (startMatch) {
+                const startMinutes = this.timeToMinutes(startMatch[0]);
+                return { start: startMinutes, end: 2 * 60 }; // 2 AM
+            }
+        }
+
+        // Parse various time range formats
+        // Handles: "11am - 2pm", "3:00 PM - 6:00 PM", "11:00 - 14:00"
+        const rangeMatch = timeString.match(/(\d{1,2}(?::\d{2})?\s*(?:am|pm|AM|PM)?)\s*[-–]\s*(\d{1,2}(?::\d{2})?\s*(?:am|pm|AM|PM)?)/i);
         if (!rangeMatch) return null;
 
         const startMinutes = this.timeToMinutes(rangeMatch[1]);
