@@ -2,8 +2,8 @@ name: Update Happy Hour Data
 
 on:
   schedule:
-    # Run every 4 hours
-    - cron: '0 */4 * * *'
+    # Run every 15 minutes
+    - cron: '*/15 * * * *'
   workflow_dispatch: # Allow manual trigger
   push:
     branches: [ main ]
