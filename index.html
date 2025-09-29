@@ -40,16 +40,6 @@
                     </select>
                 </div>
 
-                <div class="filter-group">
-                    <label for="price-filter">Price Range:</label>
-                    <select id="price-filter" class="filter-select">
-                        <option value="">All Prices</option>
-                        <option value="$">$</option>
-                        <option value="$$">$$</option>
-                        <option value="$$$">$$$</option>
-                        <option value="$$$$">$$$$</option>
-                    </select>
-                </div>
 
                 <div class="filter-group">
                     <label for="search-input">Search:</label>
@@ -91,6 +81,19 @@
             <p>Found an error or want to add a venue? <a href="#contact">Contact us</a></p>
         </div>
     </footer>
+
+    <!-- Venue Details Modal -->
+    <div class="modal-overlay" id="venue-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-venue-name"></h2>
+                <button class="modal-close" onclick="closeVenueDetails()">&times;</button>
+            </div>
+            <div class="modal-body" id="modal-venue-details">
+                <!-- Venue details will be populated here -->
+            </div>
+        </div>
+    </div>
 
     <script src="app.js"></script>
 </body>

@@ -13,7 +13,6 @@ class HappyHourApp {
         this.elements = {
             dayFilter: document.getElementById('day-filter'),
             neighborhoodFilter: document.getElementById('neighborhood-filter'),
-            priceFilter: document.getElementById('price-filter'),
             searchInput: document.getElementById('search-input'),
             happyHourNowBtn: document.getElementById('happy-hour-now'),
             resetFiltersBtn: document.getElementById('reset-filters'),
@@ -27,7 +26,6 @@ class HappyHourApp {
     bindEvents() {
         this.elements.dayFilter.addEventListener('change', () => this.applyFilters());
         this.elements.neighborhoodFilter.addEventListener('change', () => this.applyFilters());
-        this.elements.priceFilter.addEventListener('change', () => this.applyFilters());
         this.elements.searchInput.addEventListener('input', () => this.applyFilters());
         this.elements.happyHourNowBtn.addEventListener('click', () => this.filterByCurrentTime());
         this.elements.resetFiltersBtn.addEventListener('click', () => this.resetFilters());
@@ -193,7 +191,6 @@ class HappyHourApp {
     applyFilters() {
         const dayFilter = this.elements.dayFilter.value;
         const neighborhoodFilter = this.elements.neighborhoodFilter.value;
-        const priceFilter = this.elements.priceFilter.value;
         const searchTerm = this.elements.searchInput.value.toLowerCase();
 
         this.filteredVenues = this.venues.filter(venue => {
@@ -204,11 +201,6 @@ class HappyHourApp {
 
             // Neighborhood filter
             if (neighborhoodFilter && venue.neighborhood.toLowerCase() !== neighborhoodFilter) {
-                return false;
-            }
-
-            // Price filter
-            if (priceFilter && venue.priceRange !== priceFilter) {
                 return false;
             }
 
@@ -276,7 +268,6 @@ class HappyHourApp {
     resetFilters() {
         this.elements.dayFilter.value = '';
         this.elements.neighborhoodFilter.value = '';
-        this.elements.priceFilter.value = '';
         this.elements.searchInput.value = '';
         this.elements.happyHourNowBtn.classList.remove('active');
 
@@ -314,7 +305,9 @@ class HappyHourApp {
                     <h3 class="venue-name">${venue.name}</h3>
                     <p class="venue-neighborhood">${venue.neighborhood}</p>
                 </div>
-                <div class="venue-price">${venue.priceRange}</div>
+                <button class="details-btn" onclick="showVenueDetails('${venue.name.replace(/'/g, "\\'")}')">
+                    View Details
+                </button>
             </div>
 
             <p class="venue-address">${venue.address}</p>
@@ -374,7 +367,96 @@ class HappyHourApp {
     }
 }
 
+// Global app instance for modal functions
+let happyHourApp;
+
+// Modal functions
+function showVenueDetails(venueName) {
+    const venue = happyHourApp.venues.find(v => v.name === venueName);
+    if (!venue) return;
+
+    const modal = document.getElementById('venue-modal');
+    const modalName = document.getElementById('modal-venue-name');
+    const modalDetails = document.getElementById('modal-venue-details');
+
+    modalName.textContent = venue.name;
+
+    const currentDay = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'][new Date().getDay()];
+
+    modalDetails.innerHTML = `
+        <div class="modal-section">
+            <h3>📍 Location</h3>
+            <p><strong>Address:</strong> ${venue.address}</p>
+            <p><strong>Neighborhood:</strong> ${venue.neighborhood}</p>
+            <p><strong>Phone:</strong> <a href="tel:${venue.phone}">${venue.phone}</a></p>
+            ${venue.website ? `<p><strong>Website:</strong> <a href="${venue.website}" target="_blank">${venue.website}</a></p>` : ''}
+        </div>
+
+        <div class="modal-section">
+            <h3>🕐 Happy Hour Schedule</h3>
+            <div class="schedule-grid">
+                ${Object.entries(venue.happyHours).map(([day, hours]) => `
+                    <div class="schedule-row ${day === currentDay && hours ? 'today' : ''}">
+                        <span class="schedule-day">${day.charAt(0).toUpperCase() + day.slice(1)}</span>
+                        <span class="schedule-hours">${hours || 'No Happy Hour'}</span>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+
+        ${venue.drinkDeals || venue.foodDeals ? `
+            <div class="modal-section">
+                <h3>🍺 Special Deals</h3>
+                ${venue.drinkDeals ? `
+                    <div class="deals-item">
+                        <h4>Drink Specials</h4>
+                        <p>${venue.drinkDeals}</p>
+                    </div>
+                ` : ''}
+                ${venue.foodDeals ? `
+                    <div class="deals-item">
+                        <h4>Food Specials</h4>
+                        <p>${venue.foodDeals}</p>
+                    </div>
+                ` : ''}
+            </div>
+        ` : ''}
+
+        ${venue.tags && venue.tags.length > 0 ? `
+            <div class="modal-section">
+                <h3>🏷️ Tags</h3>
+                <div class="tags-container">
+                    ${venue.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                </div>
+            </div>
+        ` : ''}
+    `;
+
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+}
+
+function closeVenueDetails() {
+    const modal = document.getElementById('venue-modal');
+    modal.style.display = 'none';
+    document.body.style.overflow = 'auto';
+}
+
+// Close modal when clicking overlay
+document.addEventListener('click', (e) => {
+    if (e.target.classList.contains('modal-overlay')) {
+        closeVenueDetails();
+    }
+});
+
+// Close modal with Escape key
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        closeVenueDetails();
+    }
+});
+
 // Initialize the app when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    new HappyHourApp();
+    happyHourApp = new HappyHourApp();
 });
