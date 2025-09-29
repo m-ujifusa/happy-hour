@@ -369,6 +369,15 @@ function showVenueDetails(venueName) {
     const currentDay = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'][new Date().getDay()];
 
     modalDetails.innerHTML = `
+        <div class="modal-section">
+            <h3>📍 Location</h3>
+            <p><strong>Address:</strong> ${venue.address}</p>
+            <p><strong>Neighborhood:</strong> ${venue.neighborhood}</p>
+            <p><strong>Phone:</strong> <a href="tel:${venue.phone}">${venue.phone}</a></p>
+            ${venue.website ? `<p><strong>Website:</strong> <a href="${venue.website}" target="_blank">${venue.website}</a></p>` : ''}
+            <div id="venue-map" class="venue-map"></div>
+        </div>
+
         ${venue.drinkDeals || venue.foodDeals ? `
             <div class="modal-section">
                 <h3>🍺 Happy Hour Specials</h3>
@@ -387,6 +396,7 @@ function showVenueDetails(venueName) {
             </div>
         ` : `
             <div class="modal-section">
+                <h3>🍺 Happy Hour Specials</h3>
                 <p class="no-deals">No special deals information available.</p>
             </div>
         `}
