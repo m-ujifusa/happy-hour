@@ -163,7 +163,12 @@ body {
     justify-content: space-between;
     align-items: start;
     margin-bottom: 1rem;
-    gap: 1rem;
+    gap: 1.5rem;
+}
+
+.venue-header > div {
+    flex: 1;
+    min-width: 0;
 }
 
 .venue-name {
@@ -619,6 +624,8 @@ body {
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s ease;
+    flex-shrink: 0;
+    white-space: nowrap;
 }
 
 .details-btn:hover {

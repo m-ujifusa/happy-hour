@@ -323,21 +323,6 @@ class HappyHourApp {
                 `).join('')}
             </div>
 
-            <div class="venue-deals">
-                ${venue.foodDeals ? `
-                    <div class="deals-section">
-                        <div class="deals-title">Food Deals</div>
-                        <div class="deals-content">${venue.foodDeals}</div>
-                    </div>
-                ` : ''}
-                ${venue.drinkDeals ? `
-                    <div class="deals-section">
-                        <div class="deals-title">Drink Deals</div>
-                        <div class="deals-content">${venue.drinkDeals}</div>
-                    </div>
-                ` : ''}
-            </div>
-
             ${venue.tags && venue.tags.length > 0 ? `
                 <div class="venue-tags">
                     ${venue.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
