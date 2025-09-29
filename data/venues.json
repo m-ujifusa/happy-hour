@@ -12,11 +12,51 @@
       "wednesday": "11am - 2pm",
       "thursday": "6pm-Close",
       "friday": "11am - 2pm",
-      "saturday": "N/A",
+      "saturday": "No HH",
       "sunday": "All Day"
     },
     "foodDeals": "$11 lunch sandwiches (Mon-Fri 11am-2pm), $11 burger basket with domestic tap (11am-2pm), chef's specials vary by day",
     "drinkDeals": "$3 domestic bottles/cans, $4 domestic taps, $1 off craft beer, Sunday: $3 bar pour, Tuesday: $5 MN craft beers, Wednesday: $6 craft beer & 1/2 off wine bottles, Thursday: double-up rail/domestic/house wine (6pm-close)",
+    "tags": []
+  },
+  {
+    "name": "Pub 819",
+    "address": "819 Mainstreet, Hopkins, MN 55343",
+    "neighborhood": "Hopkins",
+    "phone": "(952) 933-1230",
+    "website": "https://pub819.com/hopkins-pub-819-happy-hours-specials",
+    "priceRange": "$$",
+    "happyHours": {
+      "monday": "2pm - 5pm",
+      "tuesday": "2pm - 5pm",
+      "wednesday": "2pm - 5pm",
+      "thursday": "2pm - 5pm",
+      "friday": "2pm - 5pm",
+      "saturday": "No HH",
+      "sunday": "No HH"
+    },
+    "foodDeals": "",
+    "drinkDeals": "Happy Hour! $1 off tap beer, $5 rail cocktails, $4 Coors Light, $7 house margaritas, $7 mule, $7 house wine. $7 Brussels Sprouts, Pretzels, $8 1/2 boneless wings & Buffalo cauliflower, $9 Nachos & Cheese curds, $10 Flatbreads: Red Wine or Margarita",
+    "tags": []
+  },
+  {
+    "name": "Wild Boar Bar and Grill",
+    "address": "1022 Mainstreet, Hopkins, MN 55343",
+    "neighborhood": "Hopkins",
+    "phone": "(952) 378-1693",
+    "website": "https://hopkins.wildboarbarandgrill.com/",
+    "priceRange": "$$",
+    "happyHours": {
+      "monday": "3pm - 6pm",
+      "tuesday": "3pm - 6pm",
+      "wednesday": "3pm - 6pm",
+      "thursday": "3pm - 6pm",
+      "friday": "3pm - 6pm",
+      "saturday": "No HH",
+      "sunday": "No HH"
+    },
+    "foodDeals": "",
+    "drinkDeals": "Happy Hour! Food: $10 Featured Starters & Flatbreads | Drinks: $3 Domestic Drafts, $5 Premium Drafts, $4 Bottle Beer, $3 Rails, $4 Calls, $4 House Wine",
     "tags": []
   }
 ]
