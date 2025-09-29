@@ -35,16 +35,27 @@ async function fetchGoogleSheetsData() {
 
 function fetchUrl(url) {
     return new Promise((resolve, reject) => {
-        https.get(url, (response) => {
-            if (response.statusCode !== 200) {
-                reject(new Error(`HTTP ${response.statusCode}: ${response.statusMessage}`));
-                return;
-            }
+        const makeRequest = (requestUrl) => {
+            https.get(requestUrl, (response) => {
+                // Handle redirects
+                if (response.statusCode >= 300 && response.statusCode < 400 && response.headers.location) {
+                    console.log(`Following redirect to: ${response.headers.location}`);
+                    makeRequest(response.headers.location);
+                    return;
+                }
 
-            let data = '';
-            response.on('data', chunk => data += chunk);
-            response.on('end', () => resolve(data));
-        }).on('error', reject);
+                if (response.statusCode !== 200) {
+                    reject(new Error(`HTTP ${response.statusCode}: ${response.statusMessage}`));
+                    return;
+                }
+
+                let data = '';
+                response.on('data', chunk => data += chunk);
+                response.on('end', () => resolve(data));
+            }).on('error', reject);
+        };
+
+        makeRequest(url);
     });
 }
 
