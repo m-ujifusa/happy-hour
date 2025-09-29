@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minneapolis Happy Hour Finder</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <h1 class="logo">🍻 Minneapolis Happy Hour</h1>
+            <p class="tagline">Find the best happy hour deals in the Twin Cities</p>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="container">
+            <!-- Filters Section -->
+            <section class="filters">
+                <div class="filter-group">
+                    <label for="day-filter">Day of Week:</label>
+                    <select id="day-filter" class="filter-select">
+                        <option value="">All Days</option>
+                        <option value="monday">Monday</option>
+                        <option value="tuesday">Tuesday</option>
+                        <option value="wednesday">Wednesday</option>
+                        <option value="thursday">Thursday</option>
+                        <option value="friday">Friday</option>
+                        <option value="saturday">Saturday</option>
+                        <option value="sunday">Sunday</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="neighborhood-filter">Neighborhood:</label>
+                    <select id="neighborhood-filter" class="filter-select">
+                        <option value="">All Neighborhoods</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="price-filter">Price Range:</label>
+                    <select id="price-filter" class="filter-select">
+                        <option value="">All Prices</option>
+                        <option value="$">$</option>
+                        <option value="$$">$$</option>
+                        <option value="$$$">$$$</option>
+                        <option value="$$$$">$$$$</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="search-input">Search:</label>
+                    <input type="text" id="search-input" class="filter-input" placeholder="Search venues...">
+                </div>
+
+                <div class="filter-group">
+                    <button id="happy-hour-now" class="filter-button">Happy Hour Now</button>
+                    <button id="reset-filters" class="filter-button secondary">Reset Filters</button>
+                </div>
+            </section>
+
+            <!-- Results Count -->
+            <div class="results-info">
+                <span id="results-count">Loading venues...</span>
+            </div>
+
+            <!-- Venues Grid -->
+            <section class="venues-grid" id="venues-grid">
+                <!-- Venues will be populated by JavaScript -->
+            </section>
+
+            <!-- Loading State -->
+            <div class="loading" id="loading">
+                <div class="loading-spinner"></div>
+                <p>Loading happy hour data...</p>
+            </div>
+
+            <!-- Error State -->
+            <div class="error" id="error" style="display: none;">
+                <p>Unable to load happy hour data. Please try again later.</p>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 Minneapolis Happy Hour Finder. Data updated regularly.</p>
+            <p>Found an error or want to add a venue? <a href="#contact">Contact us</a></p>
+        </div>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>

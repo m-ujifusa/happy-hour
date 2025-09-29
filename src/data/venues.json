@@ -1,0 +1,102 @@
+[
+  {
+    "name": "The Bulldog Lowertown",
+    "address": "237 6th St E, St Paul, MN 55101",
+    "neighborhood": "Lowertown",
+    "phone": "(651) 221-0750",
+    "website": "https://thebulldoglowertown.com",
+    "priceRange": "$$",
+    "happyHours": {
+      "monday": "3:00 PM - 6:00 PM",
+      "tuesday": "3:00 PM - 6:00 PM",
+      "wednesday": "3:00 PM - 6:00 PM",
+      "thursday": "3:00 PM - 6:00 PM",
+      "friday": "3:00 PM - 6:00 PM",
+      "saturday": "",
+      "sunday": ""
+    },
+    "foodDeals": "$1 off appetizers, $6 wings",
+    "drinkDeals": "$4 draft beer, $5 well cocktails, $6 house wine",
+    "tags": ["wings", "beer", "cocktails", "sports-bar"]
+  },
+  {
+    "name": "Psycho Suzi's Motor Lounge",
+    "address": "1900 Marshall St NE, Minneapolis, MN 55413",
+    "neighborhood": "Northeast",
+    "phone": "(612) 788-9069",
+    "website": "https://psychosuzis.com",
+    "priceRange": "$$$",
+    "happyHours": {
+      "monday": "4:00 PM - 6:00 PM",
+      "tuesday": "4:00 PM - 6:00 PM",
+      "wednesday": "4:00 PM - 6:00 PM",
+      "thursday": "4:00 PM - 6:00 PM",
+      "friday": "4:00 PM - 6:00 PM",
+      "saturday": "",
+      "sunday": "4:00 PM - 6:00 PM"
+    },
+    "foodDeals": "Half-price appetizers",
+    "drinkDeals": "$2 off tiki cocktails, $4 beer specials",
+    "tags": ["tiki", "cocktails", "patio", "riverfront"]
+  },
+  {
+    "name": "Parlour Bar",
+    "address": "730 N Washington Ave, Minneapolis, MN 55401",
+    "neighborhood": "North Loop",
+    "phone": "(612) 354-3135",
+    "website": "https://parlourbar.com",
+    "priceRange": "$$$",
+    "happyHours": {
+      "monday": "5:00 PM - 7:00 PM",
+      "tuesday": "5:00 PM - 7:00 PM",
+      "wednesday": "5:00 PM - 7:00 PM",
+      "thursday": "5:00 PM - 7:00 PM",
+      "friday": "5:00 PM - 7:00 PM",
+      "saturday": "",
+      "sunday": ""
+    },
+    "foodDeals": "Discounted bar bites",
+    "drinkDeals": "$7 cocktails, $5 beer, $8 wine",
+    "tags": ["upscale", "cocktails", "burgers", "north-loop"]
+  },
+  {
+    "name": "The Groveland Tap",
+    "address": "1834 Saint Clair Ave, St Paul, MN 55105",
+    "neighborhood": "Highland Park",
+    "phone": "(651) 699-5058",
+    "website": "https://grovelandtap.com",
+    "priceRange": "$$",
+    "happyHours": {
+      "monday": "3:00 PM - 6:00 PM",
+      "tuesday": "3:00 PM - 6:00 PM",
+      "wednesday": "3:00 PM - 6:00 PM",
+      "thursday": "3:00 PM - 6:00 PM",
+      "friday": "3:00 PM - 6:00 PM",
+      "saturday": "",
+      "sunday": ""
+    },
+    "foodDeals": "$5 appetizers, $8 pizza",
+    "drinkDeals": "$3.50 taps, $4 wine, $5 wells",
+    "tags": ["neighborhood", "pizza", "beer", "family-friendly"]
+  },
+  {
+    "name": "Barrel Theory Beer Company",
+    "address": "248 7th St E, St Paul, MN 55101",
+    "neighborhood": "Lowertown",
+    "phone": "(651) 444-3016",
+    "website": "https://barreltheory.com",
+    "priceRange": "$$",
+    "happyHours": {
+      "monday": "",
+      "tuesday": "4:00 PM - 6:00 PM",
+      "wednesday": "4:00 PM - 6:00 PM",
+      "thursday": "4:00 PM - 6:00 PM",
+      "friday": "4:00 PM - 6:00 PM",
+      "saturday": "",
+      "sunday": ""
+    },
+    "foodDeals": "Food truck specials vary",
+    "drinkDeals": "$1 off all beers",
+    "tags": ["brewery", "craft-beer", "food-truck"]
+  }
+]

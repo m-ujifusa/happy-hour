@@ -1,0 +1,15 @@
+{
+  "name": "minneapolis-happy-hour",
+  "version": "1.0.0",
+  "description": "Minneapolis Metro Happy Hour Finder",
+  "main": "index.js",
+  "scripts": {
+    "dev": "python -m http.server 3000 -d src",
+    "fetch-data": "node scripts/fetch-data.js",
+    "test-fetch": "GOOGLE_SHEETS_ID=your_sheets_id_here npm run fetch-data"
+  },
+  "keywords": ["happy-hour", "minneapolis", "bars", "restaurants"],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {}
+}
