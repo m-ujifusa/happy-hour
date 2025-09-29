@@ -245,102 +245,38 @@ class HappyHourApp {
     }
 
     venueHasHappyHourAtTime(venue, filterTime) {
-        // Convert filter time to minutes (e.g., "12:00" -> 720 minutes)
-        const filterMinutes = this.timeToMinutes(filterTime + ':00');
+        // Simple text search - if the time appears anywhere in any day's hours, it's a match
+        const searchHour = parseInt(filterTime.split(':')[0]);
 
-        console.log(`Checking venue "${venue.name}" for time ${filterTime} (${filterMinutes} minutes)`);
-
-        // Check all days for happy hours that include this time
         for (const [day, hours] of Object.entries(venue.happyHours)) {
-            if (!hours) continue;
+            if (!hours || hours.toLowerCase().includes('n/a')) continue;
 
-            console.log(`  ${day}: "${hours}"`);
+            // Special cases
+            if (hours.toLowerCase().includes('all day')) return true;
+            if (hours.toLowerCase().includes('close') && searchHour >= 18) return true; // 6pm or later
 
-            // Parse time range (e.g., "3:00 PM - 6:00 PM")
-            const timeRange = this.parseTimeRange(hours);
-            console.log(`    Parsed range:`, timeRange);
-
-            if (!timeRange) continue;
-
-            // Check if filter time falls within this range
-            if (filterMinutes >= timeRange.start && filterMinutes <= timeRange.end) {
-                console.log(`    ✅ Match! ${filterMinutes} is between ${timeRange.start} and ${timeRange.end}`);
+            // Simple number matching - if the hour appears in the text, it's probably valid
+            if (hours.includes(`${searchHour}`) || hours.includes(`${searchHour}:`)) {
                 return true;
-            } else {
-                console.log(`    ❌ No match. ${filterMinutes} not between ${timeRange.start} and ${timeRange.end}`);
+            }
+
+            // Handle 12-hour format (12pm = noon)
+            if (searchHour === 12 && (hours.includes('12pm') || hours.includes('noon'))) {
+                return true;
             }
         }
 
-        console.log(`  No matches found for venue "${venue.name}"`);
         return false;
     }
 
-    timeToMinutes(timeString) {
-        // Convert various time formats to minutes since midnight
-        // Handles: "11:00 AM", "11am", "11:00", "11"
-        const timeMatch = timeString.match(/(\d{1,2})(?::(\d{2}))?\s*(AM|PM|am|pm)?/i);
-        if (!timeMatch) return null;
-
-        let hours = parseInt(timeMatch[1]);
-        const minutes = parseInt(timeMatch[2] || '0');
-        const period = timeMatch[3]?.toUpperCase();
-
-        if (period === 'PM' && hours !== 12) {
-            hours += 12;
-        } else if (period === 'AM' && hours === 12) {
-            hours = 0;
-        } else if (!period) {
-            // 24-hour format - no conversion needed
-        }
-
-        return hours * 60 + minutes;
-    }
-
-    parseTimeRange(timeString) {
-        // Handle special cases first
-        if (!timeString || timeString.toLowerCase().includes('n/a') || timeString.toLowerCase() === 'closed') {
-            return null;
-        }
-
-        if (timeString.toLowerCase().includes('all day')) {
-            return { start: 0, end: 24 * 60 - 1 }; // All day (0:00 to 23:59)
-        }
-
-        if (timeString.toLowerCase().includes('close')) {
-            // Handle "6pm-Close" - assume close is 2 AM
-            const startMatch = timeString.match(/(\d{1,2})(?::(\d{2}))?\s*(am|pm)/i);
-            if (startMatch) {
-                const startMinutes = this.timeToMinutes(startMatch[0]);
-                return { start: startMinutes, end: 2 * 60 }; // 2 AM
-            }
-        }
-
-        // Parse various time range formats
-        // Handles: "11am - 2pm", "3:00 PM - 6:00 PM", "11:00 - 14:00"
-        const rangeMatch = timeString.match(/(\d{1,2}(?::\d{2})?\s*(?:am|pm|AM|PM)?)\s*[-–]\s*(\d{1,2}(?::\d{2})?\s*(?:am|pm|AM|PM)?)/i);
-        if (!rangeMatch) return null;
-
-        const startMinutes = this.timeToMinutes(rangeMatch[1]);
-        const endMinutes = this.timeToMinutes(rangeMatch[2]);
-
-        if (startMinutes === null || endMinutes === null) return null;
-
-        return {
-            start: startMinutes,
-            end: endMinutes
-        };
-    }
+    // Removed complex time parsing - using simple text matching instead
 
     filterByCurrentTime() {
         const now = new Date();
         const currentDay = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'][now.getDay()];
-        const currentTime = now.getHours() * 60 + now.getMinutes(); // Convert to minutes
+        const currentHour = now.getHours();
 
-        console.log(`=== HAPPY HOUR NOW ===`);
-        console.log(`Current day: ${currentDay}`);
-        console.log(`Current time: ${currentTime} minutes (${Math.floor(currentTime/60)}:${String(currentTime%60).padStart(2,'0')})`);
-
-        // Clear other filters first, then apply "Happy Hour Now" logic
+        // Clear other filters first
         this.elements.dayFilter.value = '';
         this.elements.neighborhoodFilter.value = '';
         this.elements.timeFilter.value = '';
@@ -348,23 +284,17 @@ class HappyHourApp {
 
         this.filteredVenues = this.venues.filter(venue => {
             const todayHours = venue.happyHours[currentDay];
-            console.log(`Checking ${venue.name}: today's hours = "${todayHours}"`);
+            if (!todayHours || todayHours.toLowerCase().includes('n/a')) return false;
 
-            if (!todayHours) return false;
+            // Simple checks for common cases
+            if (todayHours.toLowerCase().includes('all day')) return true;
+            if (todayHours.toLowerCase().includes('close') && currentHour >= 18) return true;
 
-            // Use the same parsing logic as the time filter
-            const timeRange = this.parseTimeRange(todayHours);
-            console.log(`  Parsed range:`, timeRange);
-
-            if (!timeRange) return false;
-
-            const isActive = currentTime >= timeRange.start && currentTime <= timeRange.end;
-            console.log(`  ${isActive ? '✅' : '❌'} Current time ${currentTime} vs range ${timeRange.start}-${timeRange.end}`);
-
-            return isActive;
+            // Basic time matching - if current hour appears in today's hours text
+            return todayHours.includes(`${currentHour}`) ||
+                   todayHours.includes(`${currentHour}:`) ||
+                   (currentHour === 12 && todayHours.includes('noon'));
         });
-
-        console.log(`Active venues: ${this.filteredVenues.length}`);
 
         this.elements.happyHourNowBtn.classList.add('active');
         this.renderVenues();
