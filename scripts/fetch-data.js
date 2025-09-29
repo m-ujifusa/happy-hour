@@ -22,7 +22,7 @@ async function fetchGoogleSheetsData() {
         console.log(`✅ Parsed ${venues.length} venues`);
 
         // Save to JSON file
-        const outputPath = path.join(__dirname, '../src/data/venues.json');
+        const outputPath = path.join(__dirname, '../data/venues.json');
         fs.writeFileSync(outputPath, JSON.stringify(venues, null, 2));
 
         console.log(`💾 Saved data to ${outputPath}`);
