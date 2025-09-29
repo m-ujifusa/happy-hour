@@ -384,30 +384,9 @@ function showVenueDetails(venueName) {
     const currentDay = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'][new Date().getDay()];
 
     modalDetails.innerHTML = `
-        <div class="modal-section">
-            <h3>📍 Location</h3>
-            <p><strong>Address:</strong> ${venue.address}</p>
-            <p><strong>Neighborhood:</strong> ${venue.neighborhood}</p>
-            <p><strong>Phone:</strong> <a href="tel:${venue.phone}">${venue.phone}</a></p>
-            ${venue.website ? `<p><strong>Website:</strong> <a href="${venue.website}" target="_blank">${venue.website}</a></p>` : ''}
-            <div id="venue-map" class="venue-map"></div>
-        </div>
-
-        <div class="modal-section">
-            <h3>🕐 Happy Hour Schedule</h3>
-            <div class="schedule-grid">
-                ${Object.entries(venue.happyHours).map(([day, hours]) => `
-                    <div class="schedule-row ${day === currentDay && hours ? 'today' : ''}">
-                        <span class="schedule-day">${day.charAt(0).toUpperCase() + day.slice(1)}</span>
-                        <span class="schedule-hours">${hours || 'No Happy Hour'}</span>
-                    </div>
-                `).join('')}
-            </div>
-        </div>
-
         ${venue.drinkDeals || venue.foodDeals ? `
             <div class="modal-section">
-                <h3>🍺 Special Deals</h3>
+                <h3>🍺 Happy Hour Specials</h3>
                 ${venue.drinkDeals ? `
                     <div class="deals-item">
                         <h4>Drink Specials</h4>
@@ -421,16 +400,11 @@ function showVenueDetails(venueName) {
                     </div>
                 ` : ''}
             </div>
-        ` : ''}
-
-        ${venue.tags && venue.tags.length > 0 ? `
+        ` : `
             <div class="modal-section">
-                <h3>🏷️ Tags</h3>
-                <div class="tags-container">
-                    ${venue.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
-                </div>
+                <p class="no-deals">No special deals information available.</p>
             </div>
-        ` : ''}
+        `}
     `;
 
     modal.style.display = 'flex';
