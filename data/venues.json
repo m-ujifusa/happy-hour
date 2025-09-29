@@ -1,24 +1,22 @@
 [
   {
     "name": "Main St",
-    "address": "814 MainstreetHopkins, MN 55343",
+    "address": "814 Mainstreet Hopkins, MN 55343",
     "neighborhood": "Hopkins",
     "phone": "(952) 938-2400",
     "website": "https://www.mainstreetbar.com/",
-    "priceRange": "NA",
+    "priceRange": "$$",
     "happyHours": {
-      "monday": "",
-      "tuesday": "",
-      "wednesday": "",
-      "thursday": "",
-      "friday": "",
-      "saturday": "",
-      "sunday": ""
+      "monday": "11am - 2pm",
+      "tuesday": "11am - 2pm",
+      "wednesday": "11am - 2pm",
+      "thursday": "6pm-Close",
+      "friday": "11am - 2pm",
+      "saturday": "N/A",
+      "sunday": "All Day"
     },
-    "foodDeals": "NA",
-    "drinkDeals": "NA",
-    "tags": [
-      "na"
-    ]
+    "foodDeals": "",
+    "drinkDeals": "",
+    "tags": []
   }
 ]
