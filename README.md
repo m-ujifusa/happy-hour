@@ -23,11 +23,11 @@ Visit the live site: `https://your-username.github.io/happy-hour`
    - Create a Google Sheet with your happy hour data
    - Follow the template in `google-sheets-template.md`
    - Publish to web as CSV (File → Publish to web)
-   - Copy the sheet ID from the URL
+   - Copy the **Spreadsheet ID** from URL (long string between `/d/` and `/edit`)
 
 3. **Configure GitHub Secrets:**
    - Go to your repo Settings → Secrets and variables → Actions
-   - Add secret: `GOOGLE_SHEETS_ID` with your sheet ID
+   - Add secret: `GOOGLE_SHEETS_ID` with your **Spreadsheet ID**
 
 4. **Enable GitHub Pages:**
    - Go to Settings → Pages

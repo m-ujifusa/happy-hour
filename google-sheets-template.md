@@ -13,12 +13,20 @@ Name | Address | Neighborhood | Phone | Website | Price Range | Monday | Tuesday
    - Choose "Entire Document" and "Comma-separated values (.csv)"
    - Check "Automatically republish when changes are made"
    - Click "Publish"
-   - Copy the sheet ID from the URL (the long string between `/d/` and `/edit`)
 
-3. **Set the Google Sheets ID environment variable** in your Lambda function:
+3. **Get the Spreadsheet ID:**
+   From your Google Sheets URL, copy the **Spreadsheet ID** (NOT the Sheet ID):
    ```
-   GOOGLE_SHEETS_ID=your_google_sheets_id_here
+   URL: https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit#gid=0
+
+   ✅ Spreadsheet ID: 1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms  (what we need)
+   ❌ Sheet ID (gid): 0  (specific tab number - not needed)
    ```
+   The Spreadsheet ID is the long string between `/d/` and `/edit`.
+
+4. **Add to GitHub Secrets:**
+   - Go to your repo Settings → Secrets and variables → Actions
+   - Add secret: `GOOGLE_SHEETS_ID` with your Spreadsheet ID
 
 ## Column Descriptions
 
@@ -85,3 +93,37 @@ Common Minneapolis/St. Paul neighborhoods:
 - Midway
 - Como
 - Grand Avenue
+
+## Troubleshooting
+
+### "Could not load venues data" Error
+
+This usually means the Spreadsheet ID is wrong. Check:
+
+1. **Using Spreadsheet ID, not Sheet ID:**
+   ```
+   ❌ Wrong: 0 (this is a Sheet ID/gid)
+   ✅ Correct: 1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms
+   ```
+
+2. **Sheet is published to web:**
+   - File → Publish to the web → Publish
+   - Must be "Comma-separated values (.csv)"
+   - "Automatically republish when changes are made" should be checked
+
+3. **Test the CSV URL manually:**
+   Replace `YOUR_SPREADSHEET_ID` and visit:
+   ```
+   https://docs.google.com/spreadsheets/d/YOUR_SPREADSHEET_ID/export?format=csv
+   ```
+   You should see CSV data, not an error page.
+
+### Multi-tab Spreadsheets
+
+If your happy hour data is on a specific tab (not the first one):
+
+1. Get the Sheet ID (gid) from the URL: `#gid=123456789`
+2. Update `scripts/fetch-data.js` to include the gid:
+   ```javascript
+   const url = `https://docs.google.com/spreadsheets/d/${sheetsId}/export?format=csv&gid=123456789`;
+   ```
