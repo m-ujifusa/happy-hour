@@ -238,20 +238,30 @@ class HappyHourApp {
         // Convert filter time to minutes (e.g., "12:00" -> 720 minutes)
         const filterMinutes = this.timeToMinutes(filterTime + ':00');
 
+        console.log(`Checking venue "${venue.name}" for time ${filterTime} (${filterMinutes} minutes)`);
+
         // Check all days for happy hours that include this time
         for (const [day, hours] of Object.entries(venue.happyHours)) {
             if (!hours) continue;
 
+            console.log(`  ${day}: "${hours}"`);
+
             // Parse time range (e.g., "3:00 PM - 6:00 PM")
             const timeRange = this.parseTimeRange(hours);
+            console.log(`    Parsed range:`, timeRange);
+
             if (!timeRange) continue;
 
             // Check if filter time falls within this range
             if (filterMinutes >= timeRange.start && filterMinutes <= timeRange.end) {
+                console.log(`    ✅ Match! ${filterMinutes} is between ${timeRange.start} and ${timeRange.end}`);
                 return true;
+            } else {
+                console.log(`    ❌ No match. ${filterMinutes} not between ${timeRange.start} and ${timeRange.end}`);
             }
         }
 
+        console.log(`  No matches found for venue "${venue.name}"`);
         return false;
     }
 
