@@ -204,9 +204,12 @@ class HappyHourApp {
         console.log('Total venues before filtering:', this.venues.length);
 
         this.filteredVenues = this.venues.filter(venue => {
-            // Day filter
-            if (dayFilter && !venue.happyHours[dayFilter]) {
-                return false;
+            // Day filter - check if day has happy hour (not empty string)
+            if (dayFilter) {
+                const dayHours = venue.happyHours[dayFilter];
+                if (!dayHours || dayHours.trim() === '') {
+                    return false;
+                }
             }
 
             // Neighborhood filter
@@ -215,7 +218,7 @@ class HappyHourApp {
             }
 
             // Time filter
-            if (timeFilter && !this.venueHasHappyHourAtTime(venue, timeFilter)) {
+            if (timeFilter && !this.venueHasHappyHourAtTime(venue, timeFilter, dayFilter)) {
                 return false;
             }
 
@@ -244,25 +247,46 @@ class HappyHourApp {
         this.renderVenues();
     }
 
-    venueHasHappyHourAtTime(venue, filterTime) {
-        // Simple text search - if the time appears anywhere in any day's hours, it's a match
+    venueHasHappyHourAtTime(venue, filterTime, specificDay = null) {
+        // Parse the filter time (24-hour format from select)
         const searchHour = parseInt(filterTime.split(':')[0]);
+        const searchMinute = parseInt(filterTime.split(':')[1]) || 0;
 
-        for (const [day, hours] of Object.entries(venue.happyHours)) {
-            if (!hours || hours.toLowerCase().includes('n/a')) continue;
+        // Determine which days to check
+        const daysToCheck = specificDay ? [specificDay] : Object.keys(venue.happyHours);
+
+        for (const day of daysToCheck) {
+            const hours = venue.happyHours[day];
+            if (!hours || hours.trim() === '' || hours.toLowerCase().includes('n/a')) continue;
 
             // Special cases
             if (hours.toLowerCase().includes('all day')) return true;
-            if (hours.toLowerCase().includes('close') && searchHour >= 18) return true; // 6pm or later
+            if (hours.toLowerCase().includes('close') && searchHour >= 18) return true;
 
-            // Simple number matching - if the hour appears in the text, it's probably valid
-            if (hours.includes(`${searchHour}`) || hours.includes(`${searchHour}:`)) {
-                return true;
-            }
+            // Parse time range (e.g., "3:00 PM - 6:00 PM")
+            const timeRangeMatch = hours.match(/(\d{1,2}):(\d{2})\s*(AM|PM)\s*-\s*(\d{1,2}):(\d{2})\s*(AM|PM)/i);
 
-            // Handle 12-hour format (12pm = noon)
-            if (searchHour === 12 && (hours.includes('12pm') || hours.includes('noon'))) {
-                return true;
+            if (timeRangeMatch) {
+                const [_, startHour, startMin, startPeriod, endHour, endMin, endPeriod] = timeRangeMatch;
+
+                // Convert to 24-hour format
+                let start24 = parseInt(startHour);
+                if (startPeriod.toUpperCase() === 'PM' && start24 !== 12) start24 += 12;
+                if (startPeriod.toUpperCase() === 'AM' && start24 === 12) start24 = 0;
+
+                let end24 = parseInt(endHour);
+                if (endPeriod.toUpperCase() === 'PM' && end24 !== 12) end24 += 12;
+                if (endPeriod.toUpperCase() === 'AM' && end24 === 12) end24 = 0;
+
+                // Create time values for comparison (hour * 60 + minutes)
+                const startTime = start24 * 60 + parseInt(startMin);
+                const endTime = end24 * 60 + parseInt(endMin);
+                const searchTime = searchHour * 60 + searchMinute;
+
+                // Check if search time falls within range
+                if (searchTime >= startTime && searchTime <= endTime) {
+                    return true;
+                }
             }
         }
 
@@ -275,6 +299,11 @@ class HappyHourApp {
         const now = new Date();
         const currentDay = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'][now.getDay()];
         const currentHour = now.getHours();
+        const currentMinute = now.getMinutes();
+
+        console.log('=== HAPPY HOUR NOW ===');
+        console.log('Current day:', currentDay);
+        console.log('Current time:', `${currentHour}:${currentMinute}`);
 
         // Clear other filters first
         this.elements.dayFilter.value = '';
@@ -284,17 +313,43 @@ class HappyHourApp {
 
         this.filteredVenues = this.venues.filter(venue => {
             const todayHours = venue.happyHours[currentDay];
-            if (!todayHours || todayHours.toLowerCase().includes('n/a')) return false;
+            if (!todayHours || todayHours.trim() === '' || todayHours.toLowerCase().includes('n/a')) {
+                return false;
+            }
 
-            // Simple checks for common cases
+            // Special cases
             if (todayHours.toLowerCase().includes('all day')) return true;
             if (todayHours.toLowerCase().includes('close') && currentHour >= 18) return true;
 
-            // Basic time matching - if current hour appears in today's hours text
-            return todayHours.includes(`${currentHour}`) ||
-                   todayHours.includes(`${currentHour}:`) ||
-                   (currentHour === 12 && todayHours.includes('noon'));
+            // Parse time range (e.g., "3:00 PM - 6:00 PM")
+            const timeRangeMatch = todayHours.match(/(\d{1,2}):(\d{2})\s*(AM|PM)\s*-\s*(\d{1,2}):(\d{2})\s*(AM|PM)/i);
+
+            if (timeRangeMatch) {
+                const [_, startHour, startMin, startPeriod, endHour, endMin, endPeriod] = timeRangeMatch;
+
+                // Convert to 24-hour format
+                let start24 = parseInt(startHour);
+                if (startPeriod.toUpperCase() === 'PM' && start24 !== 12) start24 += 12;
+                if (startPeriod.toUpperCase() === 'AM' && start24 === 12) start24 = 0;
+
+                let end24 = parseInt(endHour);
+                if (endPeriod.toUpperCase() === 'PM' && end24 !== 12) end24 += 12;
+                if (endPeriod.toUpperCase() === 'AM' && end24 === 12) end24 = 0;
+
+                // Create time values for comparison (hour * 60 + minutes)
+                const startTime = start24 * 60 + parseInt(startMin);
+                const endTime = end24 * 60 + parseInt(endMin);
+                const currentTime = currentHour * 60 + currentMinute;
+
+                // Check if current time falls within range
+                return currentTime >= startTime && currentTime <= endTime;
+            }
+
+            return false;
         });
+
+        console.log('Venues with happy hour now:', this.filteredVenues.length);
+        console.log('Venue names:', this.filteredVenues.map(v => v.name));
 
         this.elements.happyHourNowBtn.classList.add('active');
         this.renderVenues();
