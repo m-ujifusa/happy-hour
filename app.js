@@ -336,35 +336,35 @@ class HappyHourApp {
         const currentDay = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'][now.getDay()];
         const currentTime = now.getHours() * 60 + now.getMinutes(); // Convert to minutes
 
+        console.log(`=== HAPPY HOUR NOW ===`);
+        console.log(`Current day: ${currentDay}`);
+        console.log(`Current time: ${currentTime} minutes (${Math.floor(currentTime/60)}:${String(currentTime%60).padStart(2,'0')})`);
+
+        // Clear other filters first, then apply "Happy Hour Now" logic
+        this.elements.dayFilter.value = '';
+        this.elements.neighborhoodFilter.value = '';
+        this.elements.timeFilter.value = '';
+        this.elements.searchInput.value = '';
+
         this.filteredVenues = this.venues.filter(venue => {
             const todayHours = venue.happyHours[currentDay];
+            console.log(`Checking ${venue.name}: today's hours = "${todayHours}"`);
+
             if (!todayHours) return false;
 
-            // Parse time range (e.g., "3:00 PM - 6:00 PM")
-            const timeMatch = todayHours.match(/(\d{1,2}):(\d{2})\s*(AM|PM)\s*-\s*(\d{1,2}):(\d{2})\s*(AM|PM)/);
-            if (!timeMatch) return false;
+            // Use the same parsing logic as the time filter
+            const timeRange = this.parseTimeRange(todayHours);
+            console.log(`  Parsed range:`, timeRange);
 
-            const [, startHour, startMin, startPeriod, endHour, endMin, endPeriod] = timeMatch;
+            if (!timeRange) return false;
 
-            let startTimeMinutes = parseInt(startHour) * 60 + parseInt(startMin);
-            let endTimeMinutes = parseInt(endHour) * 60 + parseInt(endMin);
+            const isActive = currentTime >= timeRange.start && currentTime <= timeRange.end;
+            console.log(`  ${isActive ? '✅' : '❌'} Current time ${currentTime} vs range ${timeRange.start}-${timeRange.end}`);
 
-            // Convert to 24-hour format
-            if (startPeriod === 'PM' && parseInt(startHour) !== 12) {
-                startTimeMinutes += 12 * 60;
-            }
-            if (endPeriod === 'PM' && parseInt(endHour) !== 12) {
-                endTimeMinutes += 12 * 60;
-            }
-            if (startPeriod === 'AM' && parseInt(startHour) === 12) {
-                startTimeMinutes -= 12 * 60;
-            }
-            if (endPeriod === 'AM' && parseInt(endHour) === 12) {
-                endTimeMinutes -= 12 * 60;
-            }
-
-            return currentTime >= startTimeMinutes && currentTime <= endTimeMinutes;
+            return isActive;
         });
+
+        console.log(`Active venues: ${this.filteredVenues.length}`);
 
         this.elements.happyHourNowBtn.classList.add('active');
         this.renderVenues();
