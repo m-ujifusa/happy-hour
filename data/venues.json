@@ -8,10 +8,10 @@
     "priceRange": "$$",
     "happyHours": {
       "monday": "11am - 2pm",
-      "tuesday": "11am - 2pm",
-      "wednesday": "11am - 2pm",
-      "thursday": "6pm-Close",
-      "friday": "11am - 2pm",
+      "tuesday": "2pm - 6pm",
+      "wednesday": "2pm - 6pm",
+      "thursday": "2pm - 6pm",
+      "friday": "2pm - 6pm",
       "saturday": "No HH",
       "sunday": "All Day"
     },
