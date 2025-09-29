@@ -278,38 +278,45 @@ class HappyHourApp {
                 return true;
             }
 
-            // Parse time range - handle multiple formats:
-            // "3:00 PM - 6:00 PM" or "11am - 2pm" or "6pm-Close"
-            const timeRangeMatch = hours.match(/(\d{1,2})(?::(\d{2}))?\s*(am|pm)\s*-\s*(\d{1,2})(?::(\d{2}))?\s*(am|pm)/i);
+            // Split by comma or semicolon to handle multiple time windows
+            // e.g., "11am - 2pm, 5pm - 7pm" or "11am - 2pm; 5pm - 7pm"
+            const timeWindows = hours.split(/[,;]/).map(w => w.trim());
+            console.log(`  → Found ${timeWindows.length} time window(s)`);
 
-            if (timeRangeMatch) {
-                const [_, startHour, startMin = '0', startPeriod, endHour, endMin = '0', endPeriod] = timeRangeMatch;
+            for (const window of timeWindows) {
+                // Parse time range - handle multiple formats:
+                // "3:00 PM - 6:00 PM" or "11am - 2pm" or "6pm-Close"
+                const timeRangeMatch = window.match(/(\d{1,2})(?::(\d{2}))?\s*(am|pm)\s*-\s*(\d{1,2})(?::(\d{2}))?\s*(am|pm)/i);
 
-                // Convert to 24-hour format
-                let start24 = parseInt(startHour);
-                if (startPeriod.toLowerCase() === 'pm' && start24 !== 12) start24 += 12;
-                if (startPeriod.toLowerCase() === 'am' && start24 === 12) start24 = 0;
+                if (timeRangeMatch) {
+                    const [_, startHour, startMin = '0', startPeriod, endHour, endMin = '0', endPeriod] = timeRangeMatch;
 
-                let end24 = parseInt(endHour);
-                if (endPeriod.toLowerCase() === 'pm' && end24 !== 12) end24 += 12;
-                if (endPeriod.toLowerCase() === 'am' && end24 === 12) end24 = 0;
+                    // Convert to 24-hour format
+                    let start24 = parseInt(startHour);
+                    if (startPeriod.toLowerCase() === 'pm' && start24 !== 12) start24 += 12;
+                    if (startPeriod.toLowerCase() === 'am' && start24 === 12) start24 = 0;
 
-                // Create time values for comparison (hour * 60 + minutes)
-                const startTime = start24 * 60 + parseInt(startMin);
-                const endTime = end24 * 60 + parseInt(endMin);
-                const searchTime = searchHour * 60 + searchMinute;
+                    let end24 = parseInt(endHour);
+                    if (endPeriod.toLowerCase() === 'pm' && end24 !== 12) end24 += 12;
+                    if (endPeriod.toLowerCase() === 'am' && end24 === 12) end24 = 0;
 
-                console.log(`  → Range: ${start24}:${startMin.padStart(2,'0')} - ${end24}:${endMin.padStart(2,'0')} | Search: ${searchHour}:${searchMinute.toString().padStart(2,'0')}`);
+                    // Create time values for comparison (hour * 60 + minutes)
+                    const startTime = start24 * 60 + parseInt(startMin);
+                    const endTime = end24 * 60 + parseInt(endMin);
+                    const searchTime = searchHour * 60 + searchMinute;
 
-                // Check if search time falls within range
-                if (searchTime >= startTime && searchTime <= endTime) {
-                    console.log(`  → ✓ Match found!`);
-                    return true;
+                    console.log(`    → Window "${window}": ${start24}:${startMin.padStart(2,'0')} - ${end24}:${endMin.padStart(2,'0')} | Search: ${searchHour}:${searchMinute.toString().padStart(2,'0')}`);
+
+                    // Check if search time falls within range
+                    if (searchTime >= startTime && searchTime <= endTime) {
+                        console.log(`    → ✓ Match found!`);
+                        return true;
+                    } else {
+                        console.log(`    → ✗ No match (outside range)`);
+                    }
                 } else {
-                    console.log(`  → ✗ No match (outside range)`);
+                    console.log(`    → Could not parse time window: "${window}"`);
                 }
-            } else {
-                console.log(`  → Could not parse time range`);
             }
         }
 
