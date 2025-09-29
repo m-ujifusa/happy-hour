@@ -13,6 +13,7 @@ class HappyHourApp {
         this.elements = {
             dayFilter: document.getElementById('day-filter'),
             neighborhoodFilter: document.getElementById('neighborhood-filter'),
+            timeFilter: document.getElementById('time-filter'),
             searchInput: document.getElementById('search-input'),
             happyHourNowBtn: document.getElementById('happy-hour-now'),
             resetFiltersBtn: document.getElementById('reset-filters'),
@@ -26,6 +27,7 @@ class HappyHourApp {
     bindEvents() {
         this.elements.dayFilter.addEventListener('change', () => this.applyFilters());
         this.elements.neighborhoodFilter.addEventListener('change', () => this.applyFilters());
+        this.elements.timeFilter.addEventListener('change', () => this.applyFilters());
         this.elements.searchInput.addEventListener('input', () => this.applyFilters());
         this.elements.happyHourNowBtn.addEventListener('click', () => this.filterByCurrentTime());
         this.elements.resetFiltersBtn.addEventListener('click', () => this.resetFilters());
@@ -191,6 +193,7 @@ class HappyHourApp {
     applyFilters() {
         const dayFilter = this.elements.dayFilter.value;
         const neighborhoodFilter = this.elements.neighborhoodFilter.value;
+        const timeFilter = this.elements.timeFilter.value;
         const searchTerm = this.elements.searchInput.value.toLowerCase();
 
         this.filteredVenues = this.venues.filter(venue => {
@@ -201,6 +204,11 @@ class HappyHourApp {
 
             // Neighborhood filter
             if (neighborhoodFilter && venue.neighborhood.toLowerCase() !== neighborhoodFilter) {
+                return false;
+            }
+
+            // Time filter
+            if (timeFilter && !this.venueHasHappyHourAtTime(venue, timeFilter)) {
                 return false;
             }
 
@@ -224,6 +232,63 @@ class HappyHourApp {
         });
 
         this.renderVenues();
+    }
+
+    venueHasHappyHourAtTime(venue, filterTime) {
+        // Convert filter time to minutes (e.g., "12:00" -> 720 minutes)
+        const filterMinutes = this.timeToMinutes(filterTime + ':00');
+
+        // Check all days for happy hours that include this time
+        for (const [day, hours] of Object.entries(venue.happyHours)) {
+            if (!hours) continue;
+
+            // Parse time range (e.g., "3:00 PM - 6:00 PM")
+            const timeRange = this.parseTimeRange(hours);
+            if (!timeRange) continue;
+
+            // Check if filter time falls within this range
+            if (filterMinutes >= timeRange.start && filterMinutes <= timeRange.end) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    timeToMinutes(timeString) {
+        // Convert "HH:MM AM/PM" to minutes since midnight
+        const timeMatch = timeString.match(/(\d{1,2}):(\d{2})\s*(AM|PM)?/);
+        if (!timeMatch) return null;
+
+        let hours = parseInt(timeMatch[1]);
+        const minutes = parseInt(timeMatch[2]);
+        const period = timeMatch[3];
+
+        if (period === 'PM' && hours !== 12) {
+            hours += 12;
+        } else if (period === 'AM' && hours === 12) {
+            hours = 0;
+        } else if (!period) {
+            // 24-hour format - no conversion needed
+        }
+
+        return hours * 60 + minutes;
+    }
+
+    parseTimeRange(timeString) {
+        // Parse "3:00 PM - 6:00 PM" format
+        const rangeMatch = timeString.match(/(\d{1,2}:\d{2}\s*(?:AM|PM))\s*-\s*(\d{1,2}:\d{2}\s*(?:AM|PM))/);
+        if (!rangeMatch) return null;
+
+        const startMinutes = this.timeToMinutes(rangeMatch[1]);
+        const endMinutes = this.timeToMinutes(rangeMatch[2]);
+
+        if (startMinutes === null || endMinutes === null) return null;
+
+        return {
+            start: startMinutes,
+            end: endMinutes
+        };
     }
 
     filterByCurrentTime() {
@@ -268,6 +333,7 @@ class HappyHourApp {
     resetFilters() {
         this.elements.dayFilter.value = '';
         this.elements.neighborhoodFilter.value = '';
+        this.elements.timeFilter.value = '';
         this.elements.searchInput.value = '';
         this.elements.happyHourNowBtn.classList.remove('active');
 
