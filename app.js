@@ -3,6 +3,9 @@ class HappyHourApp {
         this.venues = [];
         this.filteredVenues = [];
         this.neighborhoods = new Set();
+        this.map = null;
+        this.markers = [];
+        this.geocoder = null;
 
         this.initializeElements();
         this.bindEvents();
@@ -20,7 +23,8 @@ class HappyHourApp {
             resultsCount: document.getElementById('results-count'),
             venuesGrid: document.getElementById('venues-grid'),
             loading: document.getElementById('loading'),
-            error: document.getElementById('error')
+            error: document.getElementById('error'),
+            mainMap: document.getElementById('main-map')
         };
     }
 
@@ -51,6 +55,7 @@ class HappyHourApp {
             this.filteredVenues = [...this.venues];
             this.populateNeighborhoods();
             this.setDefaultDay();
+            this.initializeMap();
             this.renderVenues();
             this.hideLoading();
 
@@ -191,6 +196,170 @@ class HappyHourApp {
         const now = new Date();
         const currentDay = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'][now.getDay()];
         this.elements.dayFilter.value = currentDay;
+    }
+
+    initializeMap() {
+        if (typeof google === 'undefined' || !google.maps) {
+            console.warn('Google Maps not loaded');
+            return;
+        }
+
+        // Center on Minneapolis
+        const center = { lat: 44.9778, lng: -93.2650 };
+
+        this.map = new google.maps.Map(this.elements.mainMap, {
+            center: center,
+            zoom: 11,
+            mapTypeControl: false,
+            streetViewControl: false,
+            fullscreenControl: true,
+            styles: [
+                { elementType: "geometry", stylers: [{ color: "#212121" }] },
+                { elementType: "labels.icon", stylers: [{ visibility: "off" }] },
+                { elementType: "labels.text.fill", stylers: [{ color: "#757575" }] },
+                { elementType: "labels.text.stroke", stylers: [{ color: "#212121" }] },
+                {
+                    featureType: "administrative",
+                    elementType: "geometry",
+                    stylers: [{ color: "#757575" }]
+                },
+                {
+                    featureType: "administrative.country",
+                    elementType: "labels.text.fill",
+                    stylers: [{ color: "#9e9e9e" }]
+                },
+                {
+                    featureType: "administrative.locality",
+                    elementType: "labels.text.fill",
+                    stylers: [{ color: "#bdbdbd" }]
+                },
+                {
+                    featureType: "poi",
+                    elementType: "labels.text.fill",
+                    stylers: [{ color: "#757575" }]
+                },
+                {
+                    featureType: "poi.park",
+                    elementType: "geometry",
+                    stylers: [{ color: "#181818" }]
+                },
+                {
+                    featureType: "poi.park",
+                    elementType: "labels.text.fill",
+                    stylers: [{ color: "#616161" }]
+                },
+                {
+                    featureType: "poi.park",
+                    elementType: "labels.text.stroke",
+                    stylers: [{ color: "#1b1b1b" }]
+                },
+                {
+                    featureType: "road",
+                    elementType: "geometry.fill",
+                    stylers: [{ color: "#2c2c2c" }]
+                },
+                {
+                    featureType: "road",
+                    elementType: "labels.text.fill",
+                    stylers: [{ color: "#8a8a8a" }]
+                },
+                {
+                    featureType: "road.arterial",
+                    elementType: "geometry",
+                    stylers: [{ color: "#373737" }]
+                },
+                {
+                    featureType: "road.highway",
+                    elementType: "geometry",
+                    stylers: [{ color: "#3c3c3c" }]
+                },
+                {
+                    featureType: "road.highway.controlled_access",
+                    elementType: "geometry",
+                    stylers: [{ color: "#4e4e4e" }]
+                },
+                {
+                    featureType: "road.local",
+                    elementType: "labels.text.fill",
+                    stylers: [{ color: "#616161" }]
+                },
+                {
+                    featureType: "transit",
+                    elementType: "labels.text.fill",
+                    stylers: [{ color: "#757575" }]
+                },
+                {
+                    featureType: "water",
+                    elementType: "geometry",
+                    stylers: [{ color: "#000000" }]
+                },
+                {
+                    featureType: "water",
+                    elementType: "labels.text.fill",
+                    stylers: [{ color: "#3d3d3d" }]
+                }
+            ]
+        });
+
+        this.geocoder = new google.maps.Geocoder();
+    }
+
+    clearMarkers() {
+        this.markers.forEach(marker => marker.setMap(null));
+        this.markers = [];
+    }
+
+    updateMap() {
+        if (!this.map || !this.geocoder) return;
+
+        this.clearMarkers();
+
+        if (this.filteredVenues.length === 0) return;
+
+        const bounds = new google.maps.LatLngBounds();
+
+        this.filteredVenues.forEach(venue => {
+            this.geocoder.geocode({ address: venue.address }, (results, status) => {
+                if (status === 'OK' && results[0]) {
+                    const location = results[0].geometry.location;
+                    bounds.extend(location);
+
+                    const marker = new google.maps.Marker({
+                        position: location,
+                        map: this.map,
+                        title: venue.name,
+                        icon: {
+                            url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="#2563eb">
+                                    <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                                </svg>
+                            `),
+                            scaledSize: new google.maps.Size(32, 32),
+                            anchor: new google.maps.Point(16, 32)
+                        }
+                    });
+
+                    marker.addListener('click', () => {
+                        showVenueDetails(venue.name);
+                    });
+
+                    this.markers.push(marker);
+
+                    // Fit bounds after all markers are added
+                    if (this.markers.length === this.filteredVenues.length) {
+                        this.map.fitBounds(bounds);
+
+                        // Zoom out a bit from the fitted bounds
+                        const listener = google.maps.event.addListenerOnce(this.map, 'bounds_changed', () => {
+                            const currentZoom = this.map.getZoom();
+                            if (currentZoom > 11) {
+                                this.map.setZoom(currentZoom - 1);
+                            }
+                        });
+                    }
+                }
+            });
+        });
     }
 
     applyFilters() {
@@ -361,6 +530,9 @@ class HappyHourApp {
             const card = this.createVenueCard(venue);
             grid.appendChild(card);
         });
+
+        // Update map with filtered venues
+        this.updateMap();
     }
 
     createVenueCard(venue) {
@@ -516,7 +688,7 @@ function initializeVenueMap(venue) {
         if (status === 'OK' && results[0]) {
             const location = results[0].geometry.location;
 
-            // Create map
+            // Create map with dark mode styling
             const map = new google.maps.Map(mapContainer, {
                 center: location,
                 zoom: 15,
@@ -524,10 +696,88 @@ function initializeVenueMap(venue) {
                 streetViewControl: false,
                 fullscreenControl: true,
                 styles: [
+                    { elementType: "geometry", stylers: [{ color: "#212121" }] },
+                    { elementType: "labels.text.fill", stylers: [{ color: "#757575" }] },
+                    { elementType: "labels.text.stroke", stylers: [{ color: "#212121" }] },
                     {
-                        featureType: 'poi.business',
-                        elementType: 'all',
-                        stylers: [{ visibility: 'simplified' }]
+                        featureType: "administrative",
+                        elementType: "geometry",
+                        stylers: [{ color: "#757575" }]
+                    },
+                    {
+                        featureType: "administrative.country",
+                        elementType: "labels.text.fill",
+                        stylers: [{ color: "#9e9e9e" }]
+                    },
+                    {
+                        featureType: "administrative.locality",
+                        elementType: "labels.text.fill",
+                        stylers: [{ color: "#bdbdbd" }]
+                    },
+                    {
+                        featureType: "poi",
+                        elementType: "labels.text.fill",
+                        stylers: [{ color: "#8a8a8a" }]
+                    },
+                    {
+                        featureType: "poi.park",
+                        elementType: "geometry",
+                        stylers: [{ color: "#181818" }]
+                    },
+                    {
+                        featureType: "poi.park",
+                        elementType: "labels.text.fill",
+                        stylers: [{ color: "#616161" }]
+                    },
+                    {
+                        featureType: "poi.park",
+                        elementType: "labels.text.stroke",
+                        stylers: [{ color: "#1b1b1b" }]
+                    },
+                    {
+                        featureType: "road",
+                        elementType: "geometry.fill",
+                        stylers: [{ color: "#2c2c2c" }]
+                    },
+                    {
+                        featureType: "road",
+                        elementType: "labels.text.fill",
+                        stylers: [{ color: "#8a8a8a" }]
+                    },
+                    {
+                        featureType: "road.arterial",
+                        elementType: "geometry",
+                        stylers: [{ color: "#373737" }]
+                    },
+                    {
+                        featureType: "road.highway",
+                        elementType: "geometry",
+                        stylers: [{ color: "#3c3c3c" }]
+                    },
+                    {
+                        featureType: "road.highway.controlled_access",
+                        elementType: "geometry",
+                        stylers: [{ color: "#4e4e4e" }]
+                    },
+                    {
+                        featureType: "road.local",
+                        elementType: "labels.text.fill",
+                        stylers: [{ color: "#616161" }]
+                    },
+                    {
+                        featureType: "transit",
+                        elementType: "labels.text.fill",
+                        stylers: [{ color: "#757575" }]
+                    },
+                    {
+                        featureType: "water",
+                        elementType: "geometry",
+                        stylers: [{ color: "#000000" }]
+                    },
+                    {
+                        featureType: "water",
+                        elementType: "labels.text.fill",
+                        stylers: [{ color: "#3d3d3d" }]
                     }
                 ]
             });
