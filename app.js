@@ -50,6 +50,7 @@ class HappyHourApp {
             this.venues = data;
             this.filteredVenues = [...this.venues];
             this.populateNeighborhoods();
+            this.setDefaultDay();
             this.renderVenues();
             this.hideLoading();
 
@@ -186,6 +187,12 @@ class HappyHourApp {
         });
     }
 
+    setDefaultDay() {
+        const now = new Date();
+        const currentDay = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'][now.getDay()];
+        this.elements.dayFilter.value = currentDay;
+    }
+
     applyFilters() {
         const dayFilter = this.elements.dayFilter.value;
         const neighborhoodFilter = this.elements.neighborhoodFilter.value;
@@ -200,10 +207,12 @@ class HappyHourApp {
         console.log('Total venues before filtering:', this.venues.length);
 
         this.filteredVenues = this.venues.filter(venue => {
-            // Day filter - check if day has happy hour (not empty string)
+            // Day filter - check if day has happy hour (not empty string, N/A, or No HH)
             if (dayFilter) {
                 const dayHours = venue.happyHours[dayFilter];
-                if (!dayHours || dayHours.trim() === '') {
+                if (!dayHours || dayHours.trim() === '' ||
+                    dayHours.toLowerCase().includes('n/a') ||
+                    dayHours.toLowerCase().includes('no hh')) {
                     return false;
                 }
             }
@@ -258,8 +267,10 @@ class HappyHourApp {
             const hours = venue.happyHours[day];
             console.log(`\n${day}: "${hours}"`);
 
-            if (!hours || hours.trim() === '' || hours.toLowerCase().includes('n/a')) {
-                console.log(`  → Skipped (empty or N/A)`);
+            if (!hours || hours.trim() === '' ||
+                hours.toLowerCase().includes('n/a') ||
+                hours.toLowerCase().includes('no hh')) {
+                console.log(`  → Skipped (empty, N/A, or No HH)`);
                 continue;
             }
 
@@ -355,32 +366,28 @@ class HappyHourApp {
     createVenueCard(venue) {
         const card = document.createElement('div');
         card.className = 'venue-card';
+        card.style.cursor = 'pointer';
+        card.onclick = () => showVenueDetails(venue.name);
 
-        const currentDay = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'][new Date().getDay()];
-        const todayHours = venue.happyHours[currentDay];
+        // Get the currently selected day filter
+        const selectedDay = this.elements.dayFilter.value;
+        const displayHours = venue.happyHours[selectedDay] || 'Closed';
 
         card.innerHTML = `
             <div class="venue-header">
-                <div>
-                    <h3 class="venue-name">${venue.name}</h3>
-                    <p class="venue-neighborhood">${venue.neighborhood}</p>
-                </div>
-                <button class="details-btn" onclick="showVenueDetails('${venue.name.replace(/'/g, "\\'")}')">
-                    View Details
+                <button class="venue-name-btn">
+                    ${venue.name}
                 </button>
             </div>
 
             <p class="venue-address">${venue.address}</p>
-            <a href="tel:${venue.phone}" class="venue-phone">${venue.phone}</a>
 
             <div class="happy-hours">
                 <h4>Happy Hour Times</h4>
-                ${Object.entries(venue.happyHours).map(([day, hours]) => `
-                    <div class="day-hours">
-                        <span class="day-name">${day.charAt(0).toUpperCase() + day.slice(1)}</span>
-                        <span class="hours-time ${day === currentDay && hours ? 'active' : ''}">${hours || 'Closed'}</span>
-                    </div>
-                `).join('')}
+                <div class="day-hours">
+                    <span class="day-name">${selectedDay.charAt(0).toUpperCase() + selectedDay.slice(1)}</span>
+                    <span class="hours-time active">${displayHours}</span>
+                </div>
             </div>
 
             ${venue.tags && venue.tags.length > 0 ? `
@@ -460,6 +467,18 @@ function showVenueDetails(venueName) {
                 <p class="no-deals">No special deals information available.</p>
             </div>
         `}
+
+        <div class="modal-section">
+            <h3>🕒 Happy Hour Schedule</h3>
+            <div class="happy-hours">
+                ${Object.entries(venue.happyHours).map(([day, hours]) => `
+                    <div class="day-hours">
+                        <span class="day-name">${day.charAt(0).toUpperCase() + day.slice(1)}</span>
+                        <span class="hours-time ${day === currentDay ? 'active' : ''}">${hours || 'Closed'}</span>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
     `;
 
     modal.style.display = 'flex';
